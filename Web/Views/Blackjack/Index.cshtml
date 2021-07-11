@@ -1,0 +1,115 @@
+﻿@using Blackjack.Domain.Game.Cards
+@using Blackjack.Web.Infrastructure
+@using Blackjack.Web.Models
+@using Blackjack.Web.Resources
+@{
+    ViewBag.Title = Common.PageTitle;
+    Layout = MVC.Shared.Views.Master;
+}
+@model BlackjackGameModel
+@section Header
+{
+    <div id="stats">
+        <p>
+            <label>
+                @Common.Wins</label><span>@Model.Statistic.WinsCount (@Model.Statistic.WinsPercent)</span></p>
+        <p>
+            <label>
+                @Common.Draws</label><span>@Model.Statistic.DrawsCount (@Model.Statistic.DrawsPercent)</span></p>
+        <p>
+            <label>
+                @Common.Looses</label><span>@Model.Statistic.LoosesCount (@Model.Statistic.LoosesPercent)</span></p>
+        <a class="show-scores" href="#">@Common.ShowScores</a>
+    </div>
+}
+<div id="dealerContainer" class="boardRow">
+    <div id="computer-score" class="score">
+        @Model.DealerScore</div>
+    <div class="hand">
+        @ShowCards(Model.DealerHand)
+        @if (Model.ShowDealerBlankCard)
+        {
+            <div class="card blank">
+            </div>
+        }
+    </div>
+</div>
+<div id="playerContainer" class="boardRow">
+    <div id="user-score" class="score">
+        @Model.PlayerScore</div>
+    <div class="hand">
+        @ShowCards(Model.PlayerHand)
+    </div>
+</div>
+<div title="Deal a new card" class="twistbutton button">
+    <button data-url="@Url.Action(MVC.Blackjack.Hit())" id="twist" type="button">@Common.Twist</button>
+</div>
+<div title="Stay with your current cards" class="stickbutton button">
+    <button data-url="@Url.Action(MVC.Blackjack.Stand())" id="stick" type="button">@Common.Stick</button>
+</div>
+@section Scripts
+{
+    <script type="text/javascript" src="@(Links.Scripts.BlackjackGame_js)"> </script>
+}
+@helper ShowCards(IEnumerable<Card> cards)
+    {
+        foreach (var item in cards)
+        {
+    @Html.Card(item)
+        }
+}
+@section Banner
+{
+    <div id="messageBackground" @Html.Raw(Model.ShowBanner ? String.Empty : "class='hide'")>
+        <div id="message" class="messageBanner">
+            <div class="message">
+                @Common.WelcomeMessage<small>@Common.PlayMessage</small></div>
+            <div class="playButton">
+                <img alt="@Common.Twist" src="@Links.Content.images.play_png" class="playButton close-banner"/>
+            </div>
+            <div class="bannerLinks">
+                <a href="#" class="show-scores">@Common.ShowScores</a><a class="reset-game" data-url="@Url.Action(MVC.Blackjack.NewGame())" href="#">@Common.ResetGame</a></div>
+        </div>
+        <div id="score-container">
+            <div class="scoreHistory">
+                <table>
+                    <tbody>
+                        <tr class="header">
+                            <td>
+                                @Common.Game
+                            </td>
+                            <td>
+                                @Common.Player
+                            </td>
+                            <td>
+                                @Common.Dealer
+                            </td>
+                            <td>
+                                @Common.Result
+                            </td>
+                        </tr>
+                        @for (int index = 0; index < Model.Statistic.Rounds.Count(); index++)
+                        {
+                            <tr>
+                                <td>
+                                    @(index + 1)
+                                </td>
+                                <td>
+                                    @Model.Statistic.Rounds.ElementAt(index).PlayerScore
+                                </td>
+                                <td>
+                                    @Model.Statistic.Rounds.ElementAt(index).DealerScore
+                                </td>
+                                <td>
+                                    @Model.Statistic.Rounds.ElementAt(index).Result
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="bannerLinks">
+                <a href="#" class="close-banner">@Common.Close</a><a class="reset-game" data-url="@Url.Action(MVC.Blackjack.NewGame())" href="#">@Common.ResetGame</a></div>
+        </div>
+    </div>
+}
